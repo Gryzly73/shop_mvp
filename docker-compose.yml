@@ -86,10 +86,28 @@ services:
       start_period: 15s
     restart: unless-stopped
 
+  bot:
+    build: ./bot
+    env_file: .env
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    restart: unless-stopped
+
   nginx:
     image: nginx:1.27-alpine
     depends_on:
       backend:
+        condition: service_healthy
+      bot:
         condition: service_healthy
     ports:
       - "80:80"

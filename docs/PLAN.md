@@ -13,7 +13,7 @@ todos:
     status: completed
   - id: bot
     content: "Шаг 4: aiogram webhook-бот, хендлеры, backend_client, set_webhook отдельной командой, тесты"
-    status: pending
+    status: completed
   - id: frontend
     content: "Шаг 5: Next.js App Router страница Каталог (force-dynamic), Telegram WebApp init, standalone Dockerfile"
     status: pending
