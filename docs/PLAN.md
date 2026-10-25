@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: frontend
     content: "Шаг 5: Next.js App Router страница Каталог (force-dynamic), Telegram WebApp init, standalone Dockerfile"
-    status: pending
+    status: completed
   - id: tma-https
     content: "Шаг 6: cloudflared, PUBLIC_BASE_URL, set_webhook, проверка Mini App"
     status: pending

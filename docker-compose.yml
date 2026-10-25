@@ -102,12 +102,36 @@ services:
       start_period: 15s
     restart: unless-stopped
 
+  frontend:
+    build: ./frontend
+    env_file: .env
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose:
+      - "3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    restart: unless-stopped
+
   nginx:
     image: nginx:1.27-alpine
     depends_on:
       backend:
         condition: service_healthy
       bot:
+        condition: service_healthy
+      frontend:
         condition: service_healthy
     ports:
       - "80:80"
