@@ -7,10 +7,10 @@ todos:
     status: completed
   - id: backend-core
     content: "Шаг 2: domain + use cases (CreateProduct, ListProducts) + pytest на фейках"
-    status: pending
+    status: completed
   - id: backend-infra-api
     content: "Шаг 3: SQLAlchemy/Alembic, MinIO-адаптер, роуты /api и /internal, migrate + backend + nginx в compose"
-    status: pending
+    status: completed
   - id: bot
     content: "Шаг 4: aiogram webhook-бот, хендлеры, backend_client, set_webhook отдельной командой, тесты"
     status: pending
