@@ -160,8 +160,9 @@ services:
         condition: service_healthy
       frontend:
         condition: service_healthy
+    # Локально: 80:80. С Caddy: NGINX_PORT_MAPPING=127.0.0.1:8080:80 (см. docker-compose.caddy.yml).
     ports:
-      - "80:80"
+      - "${NGINX_PORT_MAPPING:-80:80}"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     restart: unless-stopped

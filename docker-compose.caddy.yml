@@ -1,0 +1,31 @@
+# HTTPS-обёртка для production (Яндекс Облако / VPS).
+# Использование: make up-caddy
+# В .env обязателен SITE_ADDRESS=shop.example.com (без схемы).
+#
+# Caddy слушает 80/443, получает сертификат Let's Encrypt и проксирует на nginx
+# внутри docker-сети. Порт nginx на хосте сбрасывается на localhost:8080.
+
+services:
+  nginx:
+    ports: !override
+      - "${NGINX_PORT_MAPPING:-127.0.0.1:8080:80}"
+
+  caddy:
+    image: caddy:2.9-alpine
+    depends_on:
+      - nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

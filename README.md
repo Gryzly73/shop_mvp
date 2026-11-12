@@ -43,6 +43,25 @@ make up
 docker compose up -d --build --scale backend=2 --scale bot=2 --scale frontend=2
 ```
 
+### Production HTTPS (VPS / Яндекс Облако)
+
+Caddy получает сертификат Let's Encrypt и проксирует на nginx. В `.env`:
+
+```env
+APP_ENV=production
+PUBLIC_BASE_URL=https://shop.example.com
+PUBLIC_MEDIA_URL=https://shop.example.com/media/
+SITE_ADDRESS=shop.example.com
+NGINX_PORT_MAPPING=127.0.0.1:8080:80
+```
+
+```sh
+make up-caddy
+make webhook
+```
+
+Пошаговый план для Яндекс Облака: `docs/DEPLOY_YANDEX.md` (локальный harness-док, в git не входит).
+
 После запуска:
 
 - каталог: `http://localhost/`;

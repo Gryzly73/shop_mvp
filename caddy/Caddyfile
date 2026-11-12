@@ -1,0 +1,6 @@
+# SITE_ADDRESS — публичный хост без схемы, например shop.example.com
+# Задаётся в .env и пробрасывается в сервис caddy.
+{$SITE_ADDRESS} {
+	encode gzip
+	reverse_proxy nginx:80
+}
