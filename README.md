@@ -60,7 +60,7 @@ make up-caddy
 make webhook
 ```
 
-Пошаговый план для Яндекс Облака: `docs/DEPLOY_YANDEX.md` (локальный harness-док, в git не входит).
+Пошаговый план и список секретов: [DEPLOY_YANDEX_CLOUD.md](DEPLOY_YANDEX_CLOUD.md).
 
 После запуска:
 
