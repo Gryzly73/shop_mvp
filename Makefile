@@ -1,6 +1,6 @@
-# Тонкие обёртки над docker compose / uv / npm.
-# Рецепты без shell-конструкций, чтобы работать и в cmd (make на Windows), и в sh.
-# Цели для ещё не созданных частей (backend, bot, frontend) пропускаются.
+# пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ docker compose / uv / npm.
+# пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ shell-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ cmd (make пїЅпїЅ Windows), пїЅ пїЅ sh.
+# пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (backend, bot, frontend) пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
 COMPOSE := docker compose
 PYTHON_APPS := $(patsubst %/pyproject.toml,%,$(wildcard backend/pyproject.toml bot/pyproject.toml))
@@ -11,7 +11,7 @@ SCALE := $(foreach s,$(APP_SERVICES),--scale $(s)=2)
 .PHONY: env-check up down logs ps migrate lint typecheck test check smoke
 
 env-check:
-	$(if $(wildcard .env),,$(error Нет файла .env: скопируйте .env.example в .env и заполните))
+	$(if $(wildcard .env),,$(error пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ .env: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ .env.example пїЅ .env пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ))
 	@echo .env found
 
 up: env-check

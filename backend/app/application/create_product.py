@@ -1,9 +1,12 @@
+import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import uuid4
 
 from app.domain.ports import ImageStorage, ProductRepository
 from app.domain.product import Product
+
+logger = logging.getLogger(__name__)
 
 
 class InvalidTitleError(Exception):
@@ -45,7 +48,13 @@ class CreateProduct:
         try:
             stored = await self._products.add_if_absent(product)
         except Exception:
-            await self._images.delete(product.image_key)
+            try:
+                await self._images.delete(product.image_key)
+            except Exception:
+                logger.exception(
+                    "Failed to remove image %s after product persistence failure",
+                    product.image_key,
+                )
             raise
         if stored.image_key != product.image_key:
             await self._images.delete(product.image_key)

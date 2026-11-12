@@ -1,3 +1,6 @@
+import socket
+from collections.abc import Awaitable, Callable
+
 import httpx
 from aiogram import Bot, Dispatcher
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler
@@ -11,10 +14,18 @@ WEBHOOK_PATH = "/bot/webhook"
 LISTEN_HOST = "0.0.0.0"
 LISTEN_PORT = 8080
 _HTTP_CLIENT: web.AppKey[httpx.AsyncClient] = web.AppKey("http_client", httpx.AsyncClient)
+Handler = Callable[[web.Request], Awaitable[web.StreamResponse]]
 
 
 async def health(_request: web.Request) -> web.Response:
     return web.json_response({"status": "ok"})
+
+
+@web.middleware
+async def instance_header(request: web.Request, handler: Handler) -> web.StreamResponse:
+    response = await handler(request)
+    response.headers["X-Instance"] = socket.gethostname()
+    return response
 
 
 def create_app() -> web.Application:
@@ -29,7 +40,7 @@ def create_app() -> web.Application:
         )
     )
 
-    application = web.Application()
+    application = web.Application(middlewares=[instance_header])
     SimpleRequestHandler(
         dispatcher=dispatcher,
         bot=bot,
@@ -51,6 +62,7 @@ def create_app() -> web.Application:
         http_client = app.get(_HTTP_CLIENT)
         if http_client is not None:
             await http_client.aclose()
+        await bot.session.close()
 
     application.on_startup.append(on_startup)
     application.on_cleanup.append(on_cleanup)

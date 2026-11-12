@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from app.backend_client import BackendClient
+from app.backend_client import BackendClient, BackendRequestError
 
 
 def _client(handler: httpx.MockTransport) -> httpx.AsyncClient:
@@ -48,6 +48,23 @@ async def test_create_product_treats_200_as_duplicate() -> None:
         )
 
     assert created is False
+
+
+async def test_create_product_raises_client_error_on_4xx() -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(422, json={"detail": "title is empty"})
+
+    async with _client(httpx.MockTransport(handler)) as http:
+        client = BackendClient(http, base_url="http://backend:8000", service_token="svc")
+        with pytest.raises(BackendRequestError) as exc_info:
+            await client.create_product(
+                title="Кружка",
+                photo_file_unique_id="file-1",
+                image=b"jpeg-bytes",
+            )
+
+    assert exc_info.value.status_code == 422
+    assert exc_info.value.detail == "title is empty"
 
 
 async def test_create_product_raises_on_backend_error() -> None:

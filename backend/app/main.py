@@ -1,9 +1,11 @@
+import socket
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import aioboto3
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from sqlalchemy.ext.asyncio import AsyncEngine
+from starlette.middleware.base import RequestResponseEndpoint
 
 from app.api.routes_internal import router as internal_router
 from app.api.routes_public import router as public_router
@@ -27,6 +29,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 def create_app() -> FastAPI:
     application = FastAPI(lifespan=lifespan)
+
+    @application.middleware("http")
+    async def instance_header(
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        response = await call_next(request)
+        response.headers["X-Instance"] = socket.gethostname()
+        return response
+
     application.include_router(public_router)
     application.include_router(internal_router)
     return application

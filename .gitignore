@@ -7,3 +7,7 @@ __pycache__/
 .ruff_cache/
 node_modules/
 .next/
+
+# Harness / agent docs (README.md остаётся в git)
+docs/
+AGENTS.md

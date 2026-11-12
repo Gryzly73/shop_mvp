@@ -13,13 +13,17 @@ from aiogram.types import (
     User,
 )
 
+from app.backend_client import BackendRequestError
 from app.handlers import (
     ALREADY_EXISTS,
     CATALOG_TEXT,
     CREATE_HINT,
+    CREATE_REJECTED,
     CREATED,
+    MAX_TITLE_LENGTH,
     NEED_TITLE,
     NOT_ADMIN,
+    TITLE_TOO_LONG,
     create_router,
 )
 from tests.fakes import FakeSession
@@ -162,3 +166,18 @@ async def test_admin_photo_with_blank_caption_asks_for_a_title() -> None:
     session, _backend = await _dispatch(_photo(ADMIN_ID, "   "), backend)
     assert _answers(session)[0].text == NEED_TITLE
     backend.create_product.assert_not_awaited()
+
+
+async def test_admin_photo_with_long_caption_is_rejected_before_download() -> None:
+    backend = AsyncMock()
+    session, _backend = await _dispatch(_photo(ADMIN_ID, "x" * (MAX_TITLE_LENGTH + 1)), backend)
+    assert _answers(session)[0].text == TITLE_TOO_LONG
+    assert not any(isinstance(call, GetFile) for call in session.calls)
+    backend.create_product.assert_not_awaited()
+
+
+async def test_backend_client_error_is_reported_without_raising() -> None:
+    backend = AsyncMock()
+    backend.create_product.side_effect = BackendRequestError(422, "title is empty")
+    session, _backend = await _dispatch(_photo(ADMIN_ID, "Кружка"), backend)
+    assert _answers(session)[0].text == CREATE_REJECTED

@@ -2,6 +2,7 @@ import pytest
 
 from app.application.create_product import CreateProduct, InvalidTitleError
 from app.application.list_products import ListProducts
+from app.domain.product import Product
 from tests.fakes import FakeImageStorage, FakeProductRepository
 
 
@@ -71,3 +72,33 @@ async def test_list_products_returns_stored_records() -> None:
     listed = await ListProducts(products).execute()
 
     assert {item.title for item in listed} == {"Первый", "Второй"}
+
+
+async def test_repository_failure_removes_uploaded_image() -> None:
+    class FailingRepository(FakeProductRepository):
+        async def add_if_absent(self, product: Product) -> Product:
+            raise RuntimeError("database failed")
+
+    products = FailingRepository()
+    images = FakeImageStorage()
+    usecase = CreateProduct(products, images)
+
+    with pytest.raises(RuntimeError, match="database failed"):
+        await usecase.execute(title="Кружка", photo_file_unique_id="file-1", image=b"jpeg")
+
+    assert images.objects == {}
+
+
+async def test_cleanup_failure_does_not_hide_repository_failure() -> None:
+    class FailingRepository(FakeProductRepository):
+        async def add_if_absent(self, product: Product) -> Product:
+            raise RuntimeError("database failed")
+
+    class FailingCleanupStorage(FakeImageStorage):
+        async def delete(self, key: str) -> None:
+            raise OSError("storage cleanup failed")
+
+    usecase = CreateProduct(FailingRepository(), FailingCleanupStorage())
+
+    with pytest.raises(RuntimeError, match="database failed"):
+        await usecase.execute(title="Кружка", photo_file_unique_id="file-1", image=b"jpeg")
